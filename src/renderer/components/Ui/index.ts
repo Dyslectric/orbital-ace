@@ -3,12 +3,15 @@ import { PlayerPanel } from "./PlayerPanel";
 import { BackgroundBlur } from "../BackgroundBlur";
 import { Hotbar } from "./Hotbar";
 import { Compass } from "./Compass";
+import { Pointer } from "./Pointer";
 import { SpaceViewState } from "../../../types";
 import { MaskFilter } from "../MaskFilter";
 
 export const Ui = (
     renderer: Renderer,
     background: Container,
+    mouse_x: number,
+    mouse_y: number,
 ): {
     container: Container;
     update: (state: SpaceViewState) => void;
@@ -26,6 +29,7 @@ export const Ui = (
         children: [playerPanel.blurMask, hotbar.blurMask, compass.blurMask],
     });
     const hudBlur = BackgroundBlur(renderer, background, blurMask);
+    const pointer = Pointer(mouse_x, mouse_y);
     const container = new Container({
         children: [
             blurMask,
@@ -34,6 +38,7 @@ export const Ui = (
             hotbar.container,
             compassShadow.container,
             compass.render,
+            pointer.render,
         ],
     });
     const update = (state: SpaceViewState) => {
@@ -41,6 +46,7 @@ export const Ui = (
         compass.update();
         hudBlur.update();
         compassShadow.update();
+        pointer.update(state.mouse_x, state.mouse_y);
     };
     return {
         container,

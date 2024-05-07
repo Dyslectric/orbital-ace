@@ -2,7 +2,7 @@ import "./style.css";
 import { Application, Assets, TextureStyle } from "pixi.js";
 import { SpaceViewState } from "./types";
 import { SpaceViewRenderer } from "./renderer/SpaceViewRenderer";
-import { get_game_height, get_game_width, get_game_scale } from "./renderer/util";
+//import { get_game_height, get_game_width, get_game_scale } from "./renderer/util";
 import { game_consts } from "./const";
 
 const app = new Application();
@@ -17,6 +17,7 @@ window.onload = async (): Promise<void> => {
     TextureStyle.defaultOptions.scaleMode = "nearest";
 
     await Promise.all([
+        Assets.load("assets/pointer.png"),
         Assets.load("assets/player.png"),
         Assets.load("assets/bg_0.png"),
         Assets.load("assets/bg_1.png"),
@@ -24,7 +25,9 @@ window.onload = async (): Promise<void> => {
         Assets.load("assets/bg_3.png"),
     ]);
 
+    app.canvas.id = "game-canvas";
     document.body.appendChild(app.canvas);
+
     resizeCanvas();
 
     new SpaceView();
@@ -54,9 +57,11 @@ class SpaceView {
                 velocity: 0,
                 direction: 0,
             },
-            game_width: get_game_width(),
-            game_height: get_game_height(),
-            game_scale: get_game_scale(),
+            mouse_x: 0,
+            mouse_y: 0,
+            //game_width: get_game_width(),
+            //game_height: get_game_height(),
+            //game_scale: get_game_scale(),
             hotbar_selection: 0,
         };
 
@@ -175,6 +180,11 @@ class SpaceView {
                     this.state.hotbar_selection = 9;
                     break;
             }
+        });
+
+        document.addEventListener("mousemove", (moveEvent) => {
+            this.state.mouse_x = moveEvent.clientX;
+            this.state.mouse_y = moveEvent.clientY;
         });
 
         this.run();

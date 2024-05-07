@@ -12,7 +12,9 @@ export type PlayerEntity = {
 export type SpaceViewState = {
     player: PlayerEntity;
     hotbar_selection: number;
-    game_width: number;
-    game_height: number;
-    game_scale: number;
+    mouse_x: number;
+    mouse_y: number;
+    //game_width: number;
+    //game_height: number;
+    //game_scale: number;
 };

@@ -14,6 +14,14 @@ export const SpaceViewRenderer = (
     container.addChild(spaceView.container);
 
     const render = (state: SpaceViewState) => {
+        const canvas = document.getElementById("game-canvas");
+        if (canvas) {
+            console.log("found it");
+            //document.body.removeChild(canvas);
+            canvas.style.removeProperty("cursor");
+            canvas.style.setProperty("cursor", "none");
+            //document.body.appendChild(canvas);
+        }
         spaceView.update(state);
     };
 

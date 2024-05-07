@@ -15,7 +15,7 @@ export const SpaceView = (
     const scale = get_game_scale();
 
     const worldLayer = WorldLayer(renderer, width, height, state);
-    const ui = Ui(renderer, worldLayer.container);
+    const ui = Ui(renderer, worldLayer.container, state.mouse_x, state.mouse_y);
 
     const pixelateFilter = new PixelateFilter(scale);
     const scaler = Scaler(get_game_scale(), [worldLayer.container, ui.container]);
