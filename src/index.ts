@@ -5,12 +5,6 @@ import { SpaceViewRenderer } from "./renderer/SpaceViewRenderer";
 import { get_game_height, get_game_width, get_game_scale } from "./renderer/util";
 import { game_consts } from "./const";
 
-//const app = new Application({
-//    backgroundColor: 0xd3d3d3,
-//    width: window.innerWidth,
-//    height: window.innerHeight,
-//});
-
 const app = new Application();
 
 window.onload = async (): Promise<void> => {
@@ -33,7 +27,6 @@ window.onload = async (): Promise<void> => {
     document.body.appendChild(app.canvas);
     resizeCanvas();
 
-    //const renderer = new SpaceViewRenderer(app);
     new SpaceView();
 };
 
@@ -48,7 +41,6 @@ function resizeCanvas(): void {
 
 class SpaceView {
     state: SpaceViewState;
-    //renderer: SpaceViewRenderer;
 
     constructor() {
         this.state = {
@@ -67,7 +59,6 @@ class SpaceView {
             game_scale: get_game_scale(),
             hotbar_selection: 0,
         };
-        //this.renderer = renderer;
 
         document.addEventListener("keydown", (event) => {
             switch (event.key) {
@@ -212,15 +203,19 @@ class SpaceView {
     }
 
     async run() {
-        //let elapsed = 0;
-
         const renderer = SpaceViewRenderer(app.renderer, app.stage, this.state);
 
+        let startTime = performance.now();
+
         while (true) {
+            const next = new Promise((resolve) => setTimeout(resolve, 6));
             this.update();
             renderer.render(this.state);
+            const endTime = performance.now();
+            console.log("Frametime: ", endTime - startTime);
+            startTime = endTime;
 
-            await new Promise((resolve) => setTimeout(resolve, 6)); // Add delay between iterations
+            await next;
         }
     }
 }
