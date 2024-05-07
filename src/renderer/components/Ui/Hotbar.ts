@@ -7,11 +7,13 @@ export const Hotbar = (
     box_padding: number,
     box_corner_radius: number,
     bottom_distance: number,
-    color: string,
+    //selection: number,
+    color_unselected: string,
+    color_selected: string,
 ): {
     container: Container;
     blurMask: Container;
-    update: () => void;
+    update: (selection: number) => void;
 } => {
     const width = get_game_width();
     const height = get_game_height();
@@ -46,7 +48,7 @@ export const Hotbar = (
 
     const boxes = Array.from({ length: 10 }, (_, index) => {
         const x = left_x + index * (box_size + box_padding);
-        const box = new Graphics({ x, y }).path(boxArea).fill({ color });
+        const box = new Graphics({ x, y }).path(boxArea).fill({ color: color_unselected });
         box.filters = gradFilter;
         return box;
     });
@@ -57,16 +59,34 @@ export const Hotbar = (
         return blurMask;
     });
 
-    const container = new Container({
-        children: boxes,
-    });
-
     const blurMask = new Container({
         children: blurMasks,
     });
 
-    const update = () => {
-        //boxes.forEach((box) => {});
+    const container = new Container({
+        children: boxes,
+    });
+
+    const update = (selection: number) => {
+        const width = get_game_width();
+        const height = get_game_height();
+        const y = height - bottom_distance - box_size;
+        const left_x = width / 2 - box_padding / 2 - box_padding * 4 - box_size * 5;
+        boxes.forEach((box, index) => {
+            const x = left_x + index * (box_size + box_padding);
+            box.x = x;
+            box.y = y;
+            if (index == selection) {
+                box.clear().path(boxArea).fill({ color: color_selected });
+            } else {
+                box.clear().path(boxArea).fill({ color: color_unselected });
+            }
+        });
+        blurMasks.forEach((box, index) => {
+            const x = left_x + index * (box_size + box_padding);
+            box.x = x;
+            box.y = y;
+        });
         //blurMasks.forEach((blurMask) => {});
     };
 

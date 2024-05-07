@@ -1,5 +1,5 @@
-//import { KawaseBlurFilter } from "pixi-filters";
-import { BlurFilter, Container, Renderer, Sprite } from "pixi.js";
+import { KawaseBlurFilter } from "pixi-filters";
+import { Container, Renderer, Sprite } from "pixi.js";
 //import { get_game_height, get_game_width } from "../util";
 
 export const BackgroundBlur = (
@@ -12,7 +12,7 @@ export const BackgroundBlur = (
 } => {
     const sprite = new Sprite(renderer.generateTexture(background));
     sprite.mask = blurMask;
-    sprite.filters = new BlurFilter();
+    sprite.filters = new KawaseBlurFilter({ strength: 1.5, quality: 8 });
 
     const update = () => {
         sprite.texture.source.destroy();

@@ -1,4 +1,3 @@
-//import { BackdropBlurFilter } from "pixi-filters";
 import { Container, Graphics, GraphicsPath } from "pixi.js";
 
 export const PlayerPanel = (

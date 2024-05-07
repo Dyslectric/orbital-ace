@@ -65,6 +65,7 @@ class SpaceView {
             game_width: get_game_width(),
             game_height: get_game_height(),
             game_scale: get_game_scale(),
+            hotbar_selection: 0,
         };
         //this.renderer = renderer;
 
@@ -142,10 +143,47 @@ class SpaceView {
             }
         });
 
-        window.addEventListener("resize", () => {
-            this.state.game_scale = get_game_scale();
-            this.state.game_width = get_game_width();
-            this.state.game_height = get_game_height();
+        document.addEventListener("wheel", (event) => {
+            if (event.deltaY > 0 && this.state.hotbar_selection < 10 - 1) {
+                this.state.hotbar_selection++;
+            } else if (this.state.hotbar_selection > 0) {
+                this.state.hotbar_selection--;
+            }
+        });
+
+        document.addEventListener("keypress", (event) => {
+            switch (event.key) {
+                case "1":
+                    this.state.hotbar_selection = 0;
+                    break;
+                case "2":
+                    this.state.hotbar_selection = 1;
+                    break;
+                case "3":
+                    this.state.hotbar_selection = 2;
+                    break;
+                case "4":
+                    this.state.hotbar_selection = 3;
+                    break;
+                case "5":
+                    this.state.hotbar_selection = 4;
+                    break;
+                case "6":
+                    this.state.hotbar_selection = 5;
+                    break;
+                case "7":
+                    this.state.hotbar_selection = 6;
+                    break;
+                case "8":
+                    this.state.hotbar_selection = 7;
+                    break;
+                case "9":
+                    this.state.hotbar_selection = 8;
+                    break;
+                case "0":
+                    this.state.hotbar_selection = 9;
+                    break;
+            }
         });
 
         this.run();

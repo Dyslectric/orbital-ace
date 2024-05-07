@@ -25,10 +25,10 @@ export const SpaceView = (
         children: [scaler.container],
     });
 
-    const update = () => {
+    const update = (state: SpaceViewState) => {
         const scale = get_game_scale();
         worldLayer.update(state);
-        ui.update();
+        ui.update(state);
         scaler.update(scale);
         pixelateFilter.size = scale;
     };
