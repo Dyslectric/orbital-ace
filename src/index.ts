@@ -1,7 +1,8 @@
 import "./style.css";
-import { Application, Assets } from "pixi.js";
+import { Application, Assets, TextureStyle } from "pixi.js";
 import { SpaceViewState } from "./types";
-import { SpaceViewRenderer, get_game_width, get_game_height, get_game_scale } from "./renderer";
+import { SpaceViewRenderer } from "./renderer/SpaceViewRenderer";
+import { get_game_height, get_game_width, get_game_scale } from "./renderer/util";
 import { game_consts } from "./const";
 
 //const app = new Application({
@@ -19,6 +20,8 @@ window.onload = async (): Promise<void> => {
         height: window.innerHeight,
     });
 
+    TextureStyle.defaultOptions.scaleMode = "nearest";
+
     await Promise.all([
         Assets.load("assets/player.png"),
         Assets.load("assets/bg_0.png"),
@@ -30,8 +33,8 @@ window.onload = async (): Promise<void> => {
     document.body.appendChild(app.canvas);
     resizeCanvas();
 
-    const renderer = new SpaceViewRenderer(app);
-    new SpaceView(renderer);
+    //const renderer = new SpaceViewRenderer(app);
+    new SpaceView();
 };
 
 function resizeCanvas(): void {
@@ -45,9 +48,9 @@ function resizeCanvas(): void {
 
 class SpaceView {
     state: SpaceViewState;
-    renderer: SpaceViewRenderer;
+    //renderer: SpaceViewRenderer;
 
-    constructor(renderer: SpaceViewRenderer) {
+    constructor() {
         this.state = {
             player: {
                 x: 0,
@@ -63,7 +66,7 @@ class SpaceView {
             game_height: get_game_height(),
             game_scale: get_game_scale(),
         };
-        this.renderer = renderer;
+        //this.renderer = renderer;
 
         document.addEventListener("keydown", (event) => {
             switch (event.key) {
@@ -173,11 +176,13 @@ class SpaceView {
     async run() {
         //let elapsed = 0;
 
+        const renderer = SpaceViewRenderer(app.renderer, app.stage, this.state);
+
         while (true) {
             this.update();
-            this.renderer.update(this.state);
+            renderer.render(this.state);
 
-            await new Promise((resolve) => setTimeout(resolve, 10)); // Add delay between iterations
+            await new Promise((resolve) => setTimeout(resolve, 6)); // Add delay between iterations
         }
     }
 }

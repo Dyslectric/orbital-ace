@@ -25,7 +25,11 @@
     "author": "jkanchelov",
     "license": "MIT",
     "dependencies": {
+        "@pixi/core": "^7.4.2",
+        "@pixi/picture": "^3.0.6",
         "core-js": "^3.34.0",
+        "i": "^0.3.7",
+        "npm": "^10.7.0",
         "pixi-filters": "^6.0.3",
         "pixi.js": "^8.1.1"
     },
