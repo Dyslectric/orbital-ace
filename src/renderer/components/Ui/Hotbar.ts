@@ -1,6 +1,7 @@
 import { ColorGradientFilter } from "pixi-filters";
 import { Container, Graphics, GraphicsPath } from "pixi.js";
 import { get_game_height, get_game_width } from "../../util";
+import { colors } from "./colors";
 
 export const Hotbar = (
     box_size: number,
@@ -8,8 +9,6 @@ export const Hotbar = (
     box_corner_radius: number,
     bottom_distance: number,
     //selection: number,
-    color_unselected: string,
-    color_selected: string,
 ): {
     container: Container;
     blurMask: Container;
@@ -48,7 +47,7 @@ export const Hotbar = (
 
     const boxes = Array.from({ length: 10 }, (_, index) => {
         const x = left_x + index * (box_size + box_padding);
-        const box = new Graphics({ x, y }).path(boxArea).fill({ color: color_unselected });
+        const box = new Graphics({ x, y }).path(boxArea).fill({ color: colors.uiUnselected });
         box.filters = gradFilter;
         return box;
     });
@@ -77,9 +76,9 @@ export const Hotbar = (
             box.x = x;
             box.y = y;
             if (index == selection) {
-                box.clear().path(boxArea).fill({ color: color_selected });
+                box.clear().path(boxArea).fill({ color: colors.uiAccent });
             } else {
-                box.clear().path(boxArea).fill({ color: color_unselected });
+                box.clear().path(boxArea).fill({ color: colors.uiUnselected });
             }
         });
         blurMasks.forEach((box, index) => {

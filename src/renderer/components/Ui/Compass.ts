@@ -1,6 +1,7 @@
 import { Container, Filter, Graphics, GraphicsPath, Renderer, Sprite } from "pixi.js";
 import { get_game_height } from "../../util";
 import { ColorGradientFilter } from "pixi-filters";
+import { colors } from "./colors";
 
 export const Compass = (
     renderer: Renderer,
@@ -8,7 +9,6 @@ export const Compass = (
     radius_shadow: number,
     padding_left: number,
     padding_bottom: number,
-    color_compass_face: string,
 ): {
     render: Container;
     blurMask: Container;
@@ -33,7 +33,7 @@ export const Compass = (
 
     const shadowMaskFilter = new ColorGradientFilter({
         type: 1, // Radial
-        alpha: 0.86,
+        alpha: 0.75,
         replace: true,
         stops: [
             {
@@ -43,20 +43,30 @@ export const Compass = (
             },
             {
                 alpha: 1.0,
-                offset: 0.85,
+                offset: 0.75,
                 color: "#000",
+            },
+            {
+                alpha: 1.0,
+                offset: 0.8,
+                color: colors.compassBack,
+            },
+            {
+                alpha: 0.0,
+                offset: 0.88,
+                color: colors.compassBack,
             },
             {
                 alpha: 0.0,
                 offset: 1.0,
-                color: "#000",
+                color: colors.compassBack,
             },
         ],
     });
 
     const compassGlassEdgeShine = new ColorGradientFilter({
         type: 1, // Radial
-        alpha: 0.4,
+        alpha: 1.0,
         replace: false,
         stops: [
             {
@@ -66,23 +76,23 @@ export const Compass = (
             },
             {
                 alpha: 0.0,
-                offset: 0.9,
+                offset: 0.75,
                 color: "#fff",
             },
             {
-                alpha: 1.0,
-                offset: 0.95,
+                alpha: 0.3,
+                offset: 0.92,
                 color: "#fff",
             },
             {
                 alpha: 1.0,
                 offset: 1.0,
-                color: "#000",
+                color: colors.compassBack,
             },
         ],
     });
 
-    const compassGlass = new Graphics({ x, y }).path(compassArea).fill({ color: color_compass_face });
+    const compassGlass = new Graphics({ x, y }).path(compassArea).fill({ color: "#00000040" });
     compassGlass.filters = compassGlassEdgeShine;
 
     const blurMask = new Graphics({ x, y }).path(compassArea).fill({ color: "#fff" });
