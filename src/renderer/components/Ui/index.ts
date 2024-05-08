@@ -20,7 +20,7 @@ export const Ui = (
     const playerPanel = PlayerPanel(20, 20, 240, 50, 16);
     const hotbar = Hotbar(30, 8, 12, 12);
     // compass has compass radius, shadow radius
-    const compass = Compass(renderer, 63, 74, 10, 10);
+    const compass = Compass(renderer, 63, 76, 10, 10);
     const compassShadow = MaskFilter(renderer, compass.shadowMask, [compass.shadowMaskFilter], background);
     const blurMask = new Container({
         children: [playerPanel.blurMask, hotbar.blurMask, compass.blurMask],

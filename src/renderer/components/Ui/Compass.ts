@@ -33,18 +33,18 @@ export const Compass = (
 
     const shadowMaskFilter = new ColorGradientFilter({
         type: 1, // Radial
-        alpha: 0.75,
+        alpha: 1.0,
         replace: true,
         stops: [
             {
-                alpha: 1.0,
+                alpha: 0.8,
                 offset: 0.0,
-                color: "#000",
+                color: "#040004",
             },
             {
-                alpha: 1.0,
+                alpha: 0.8,
                 offset: 0.75,
-                color: "#000",
+                color: "#040004",
             },
             {
                 alpha: 1.0,
@@ -76,12 +76,12 @@ export const Compass = (
             },
             {
                 alpha: 0.0,
-                offset: 0.75,
+                offset: 0.6,
                 color: "#fff",
             },
             {
-                alpha: 0.3,
-                offset: 0.92,
+                alpha: 0.2,
+                offset: 0.96,
                 color: "#fff",
             },
             {
@@ -95,6 +95,29 @@ export const Compass = (
     const compassGlass = new Graphics({ x, y }).path(compassArea).fill({ color: "#00000040" });
     compassGlass.filters = compassGlassEdgeShine;
 
+    const compassGlassGlareGradient = new ColorGradientFilter({
+        type: 1, // Radial
+        alpha: 1.0,
+        replace: true,
+        stops: [
+            {
+                alpha: 0.1,
+                offset: 0.0,
+                color: "#fff",
+            },
+            {
+                alpha: 0.0,
+                offset: 1.0,
+                color: "#fff",
+            },
+        ],
+    });
+
+    const compassGlassGlare = new Graphics({ x, y })
+        .circle(radius_shadow + 18, radius_shadow - 18, radius_compass * 0.3)
+        .fill({ color: "#fff" });
+    compassGlassGlare.filters = compassGlassGlareGradient;
+
     const blurMask = new Graphics({ x, y }).path(compassArea).fill({ color: "#fff" });
 
     //const render = new Container({
@@ -107,10 +130,15 @@ export const Compass = (
         shadowMask.y = y;
         compassGlass.y = y;
         blurMask.y = y;
+        compassGlassGlare.y = y;
     };
 
+    const render = new Container({
+        children: [compassGlass, compassGlassGlare],
+    });
+
     return {
-        render: compassGlass,
+        render,
         blurMask,
         shadowMask,
         shadowMaskFilter,

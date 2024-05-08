@@ -17,7 +17,7 @@ export const BackgroundBlur = (
         }),
     );
     sprite.mask = blurMask;
-    sprite.filters = new BlurFilter();
+    sprite.filters = new BlurFilter({ strength: 5 });
 
     const update = () => {
         sprite.texture.source.destroy();
