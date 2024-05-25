@@ -4,49 +4,54 @@ import { BackgroundBlur } from "../BackgroundBlur";
 import { Hotbar } from "./Hotbar";
 import { Compass } from "./Compass";
 import { Pointer } from "./Pointer";
-import { SpaceViewState } from "../../../types";
+import { GameState } from "../../../types";
 import { MaskFilter } from "../MaskFilter";
+import { RenderObj } from "../..";
 
-export const Ui = (
-    renderer: Renderer,
-    background: Container,
-    mouse_x: number,
-    mouse_y: number,
-): {
-    container: Container;
-    update: (state: SpaceViewState) => void;
-} => {
-    //const uiSelectedColor = "#207b5c80"
+export const Ui = (renderer: Renderer, background: Container, state: GameState): RenderObj => {
     const playerPanel = PlayerPanel(20, 20, 240, 50, 16);
-    const hotbar = Hotbar(30, 8, 12, 12);
+    const hotbar = Hotbar(30, 8, 12, 12, state);
     // compass has compass radius, shadow radius
     const compass = Compass(renderer, 63, 76, 10, 10);
-    const compassShadow = MaskFilter(renderer, compass.shadowMask, [compass.shadowMaskFilter], background);
+    //const compassShadow = MaskFilter(renderer, compass.shadowMask, [compass.shadowMaskFilter], background);
     const blurMask = new Container({
         children: [playerPanel.blurMask, hotbar.blurMask, compass.blurMask],
     });
     const hudBlur = BackgroundBlur(renderer, background, blurMask);
-    const pointer = Pointer(mouse_x, mouse_y);
+    const pointer = Pointer(state.pointerCoords);
+
     const container = new Container({
         children: [
             blurMask,
             hudBlur.container,
-            playerPanel.render,
-            hotbar.container,
-            compassShadow.container,
-            compass.render,
-            pointer.render,
+            playerPanel.renderObj.container,
+            hotbar.renderObj.container,
+            //compassShadow.container,
+            compass.renderObj.container,
+            pointer.container,
         ],
     });
-    const update = (state: SpaceViewState) => {
-        hotbar.update(state.hotbar_selection);
-        compass.update();
+
+    const update = () => {
+        // disable mouse cursor on canvas element
+        const canvas = document.getElementById("game-canvas");
+        canvas?.style.setProperty("cursor", "none");
+
+        playerPanel.renderObj.update();
+        hotbar.renderObj.update();
+        compass.renderObj.update();
+        //compassShadow.update();
         hudBlur.update();
-        compassShadow.update();
-        pointer.update(state.mouse_x, state.mouse_y);
+        pointer.update();
     };
+
+    const destroy = () => {
+        container.destroy({ children: true });
+    };
+
     return {
         container,
         update,
+        destroy,
     };
 };

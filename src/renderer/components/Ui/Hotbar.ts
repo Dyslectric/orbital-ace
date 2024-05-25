@@ -2,17 +2,19 @@ import { ColorGradientFilter } from "pixi-filters";
 import { Container, Graphics, GraphicsPath } from "pixi.js";
 import { get_game_height, get_game_width } from "../../util";
 import { colors } from "./colors";
+import { RenderObj } from "../..";
+import { GameState } from "../../../types";
 
 export const Hotbar = (
     box_size: number,
     box_padding: number,
     box_corner_radius: number,
     bottom_distance: number,
+    state: GameState,
     //selection: number,
 ): {
-    container: Container;
+    renderObj: RenderObj;
     blurMask: Container;
-    update: (selection: number) => void;
 } => {
     const width = get_game_width();
     const height = get_game_height();
@@ -66,19 +68,22 @@ export const Hotbar = (
         children: boxes,
     });
 
-    const update = (selection: number) => {
+    const update = () => {
         const width = get_game_width();
         const height = get_game_height();
         const y = height - bottom_distance - box_size;
         const left_x = width / 2 - box_padding / 2 - box_padding * 4 - box_size * 5;
         boxes.forEach((box, index) => {
             const x = left_x + index * (box_size + box_padding);
+
+            box.clear();
+
             box.x = x;
             box.y = y;
-            if (index == selection) {
-                box.clear().path(boxArea).fill({ color: colors.uiAccent });
+            if (index == state.hotbarSelection) {
+                box.path(boxArea).fill({ color: colors.uiAccent });
             } else {
-                box.clear().path(boxArea).fill({ color: colors.uiUnselected });
+                box.path(boxArea).fill({ color: colors.uiUnselected });
             }
         });
         blurMasks.forEach((box, index) => {
@@ -86,12 +91,17 @@ export const Hotbar = (
             box.x = x;
             box.y = y;
         });
-        //blurMasks.forEach((blurMask) => {});
+    };
+    const destroy = () => {
+        container.destroy({ children: true });
     };
 
     return {
-        container,
+        renderObj: {
+            container,
+            update,
+            destroy,
+        },
         blurMask,
-        update,
     };
 };

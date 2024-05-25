@@ -1,24 +1,22 @@
 import { Sprite, Texture } from "pixi.js";
 import { get_game_scale } from "../../util";
+import { RenderObj } from "../..";
+import { GameState } from "../../../types";
 
-export const Pointer = (
-    x: number,
-    y: number,
-): {
-    render: Sprite;
-    update: (x: number, y: number) => void;
-} => {
+export const Pointer = (pointerCoords: { x: number; y: number }): RenderObj => {
     const scale = get_game_scale();
     const texture = Texture.from("assets/pointer.png");
-    const sprite = new Sprite({ x: x / scale, y: y / scale, texture });
-
-    const update = (x: number, y: number) => {
+    const sprite = new Sprite({ x: pointerCoords.x / scale, y: pointerCoords.y / scale, texture });
+    const update = () => {
         const scale = get_game_scale();
-        sprite.position.set(x / scale, y / scale);
+        sprite.position.set(pointerCoords.x / scale, pointerCoords.y / scale);
     };
-
+    const destroy = () => {
+        sprite.destroy({ children: true });
+    };
     return {
-        render: sprite,
+        container: sprite,
         update,
+        destroy,
     };
 };

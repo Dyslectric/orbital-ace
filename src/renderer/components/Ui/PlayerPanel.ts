@@ -1,5 +1,6 @@
 import { Container, Graphics, GraphicsPath } from "pixi.js";
 import { colors } from "./colors";
+import { RenderObj } from "../..";
 
 export const PlayerPanel = (
     x: number,
@@ -8,7 +9,7 @@ export const PlayerPanel = (
     height: number,
     radius: number,
 ): {
-    render: Container;
+    renderObj: RenderObj;
     blurMask: Container;
 } => {
     const area = new GraphicsPath()
@@ -23,12 +24,20 @@ export const PlayerPanel = (
 
     const render = new Graphics({ x, y }).path(area).fill({ color: colors.uiAccent });
     const blurMask = new Graphics({ x, y }).path(area).fill({ color: "#fff" });
+    const update = () => {};
+    const destroy = () => {
+        render.destroy({ children: true });
+    };
     //blur_mask.x = x;
     //blur_mask.y = y;
     //blur_mask.fill({ color: "#fff" });
 
     return {
-        render,
+        renderObj: {
+            container: render,
+            update,
+            destroy,
+        },
         blurMask,
     };
 };

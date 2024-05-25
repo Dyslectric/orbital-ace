@@ -1,9 +1,9 @@
 import "./style.css";
-import { Application, Assets, TextureStyle } from "pixi.js";
-import { SpaceViewState } from "./types";
-import { SpaceViewRenderer } from "./renderer/SpaceViewRenderer";
-//import { get_game_height, get_game_width, get_game_scale } from "./renderer/util";
-import { game_consts } from "./const";
+import { Application, TextureStyle } from "pixi.js";
+import { PlanetEntity, PlanetType, GameState, ViewMode } from "./types";
+import { importAssets } from "./import_assets";
+import { createGameRenderer, GameRenderer } from "./renderer";
+import { GameControls, initGameControls } from "./controls";
 
 const app = new Application();
 
@@ -14,26 +14,19 @@ window.onload = async (): Promise<void> => {
         height: window.innerHeight,
     });
 
-    TextureStyle.defaultOptions.scaleMode = "nearest";
+    await importAssets();
 
-    await Promise.all([
-        Assets.load("assets/pointer.png"),
-        Assets.load("assets/player.png"),
-        Assets.load("assets/bg_0.png"),
-        Assets.load("assets/bg_1.png"),
-        Assets.load("assets/bg_2.png"),
-        Assets.load("assets/bg_3.png"),
-    ]);
+    TextureStyle.defaultOptions.scaleMode = "linear";
 
     app.canvas.id = "game-canvas";
     document.body.appendChild(app.canvas);
 
-    resizeCanvas();
+    addResizeListener();
 
-    new SpaceView();
+    startGame();
 };
 
-function resizeCanvas(): void {
+function addResizeListener(): void {
     const resize = () => {
         app.renderer.resize(window.innerWidth, window.innerHeight);
     };
@@ -42,190 +35,150 @@ function resizeCanvas(): void {
     window.addEventListener("resize", resize);
 }
 
-class SpaceView {
-    state: SpaceViewState;
-
-    constructor() {
-        this.state = {
-            player: {
-                x: 0,
-                y: 0,
-                thruster_on: false,
-                brake_on: false,
-                turning_left: false,
-                turning_right: false,
-                velocity: 0,
-                direction: 0,
+function initGameState(): GameState {
+    return {
+        player: {
+            x: 0,
+            y: 0,
+            z: 0,
+            thruster_on: false,
+            brake_on: false,
+            turning_left: false,
+            turning_right: false,
+            velocity: 0,
+            direction: 0,
+        },
+        pointerCoords: {
+            x: 0,
+            y: 0,
+        },
+        cameraPosition: {
+            x: 0,
+            y: 0,
+        },
+        hotbarSelection: 0,
+        planets: [
+            {
+                orbitProperties: {
+                    radius_x: 500,
+                    radius_y: 500,
+                    position: 0,
+                },
+                type: PlanetType.Oasis,
+                size: 32,
             },
-            mouse_x: 0,
-            mouse_y: 0,
-            //game_width: get_game_width(),
-            //game_height: get_game_height(),
-            //game_scale: get_game_scale(),
-            hotbar_selection: 0,
-        };
+        ],
+        viewMode: ViewMode.Interplanetary,
+    };
+}
 
-        document.addEventListener("keydown", (event) => {
-            switch (event.key) {
-                case "ArrowUp":
-                    this.state.player.thruster_on = true;
-                    event.preventDefault();
-                    break;
-                case "w":
-                    this.state.player.thruster_on = true;
-                    event.preventDefault();
-                    break;
-                case "ArrowDown":
-                    this.state.player.brake_on = true;
-                    event.preventDefault();
-                    break;
-                case "s":
-                    this.state.player.brake_on = true;
-                    event.preventDefault();
-                    break;
-                case "ArrowLeft":
-                    this.state.player.turning_left = true;
-                    event.preventDefault();
-                    break;
-                case "a":
-                    this.state.player.turning_left = true;
-                    event.preventDefault();
-                    break;
-                case "ArrowRight":
-                    this.state.player.turning_right = true;
-                    event.preventDefault();
-                    break;
-                case "d":
-                    this.state.player.turning_right = true;
-                    event.preventDefault();
-                    break;
-            }
-        });
+function handleControls(controls: GameControls, state: GameState) {
+    if (controls.camera.up) {
+        state.cameraPosition.y -= 6;
+    }
+    if (controls.camera.down) {
+        state.cameraPosition.y += 6;
+    }
+    if (controls.camera.left) {
+        state.cameraPosition.x -= 6;
+    }
+    if (controls.camera.right) {
+        state.cameraPosition.x += 6;
+    }
+    if (controls.changeViewMode) {
+        controls.changeViewMode = false;
 
-        document.addEventListener("keyup", (event) => {
-            switch (event.key) {
-                case "ArrowUp":
-                    this.state.player.thruster_on = false;
-                    event.preventDefault();
-                    break;
-                case "w":
-                    this.state.player.thruster_on = false;
-                    event.preventDefault();
-                    break;
-                case "ArrowDown":
-                    this.state.player.brake_on = false;
-                    event.preventDefault();
-                    break;
-                case "s":
-                    this.state.player.brake_on = false;
-                    event.preventDefault();
-                    break;
-                case "ArrowLeft":
-                    this.state.player.turning_left = false;
-                    event.preventDefault();
-                    break;
-                case "a":
-                    this.state.player.turning_left = false;
-                    event.preventDefault();
-                    break;
-                case "ArrowRight":
-                    this.state.player.turning_right = false;
-                    event.preventDefault();
-                    break;
-                case "d":
-                    this.state.player.turning_right = false;
-                    event.preventDefault();
-                    break;
-            }
-        });
-
-        document.addEventListener("wheel", (event) => {
-            if (event.deltaY > 0 && this.state.hotbar_selection < 10 - 1) {
-                this.state.hotbar_selection++;
-            } else if (this.state.hotbar_selection > 0) {
-                this.state.hotbar_selection--;
-            }
-        });
-
-        document.addEventListener("keypress", (event) => {
-            switch (event.key) {
-                case "1":
-                    this.state.hotbar_selection = 0;
-                    break;
-                case "2":
-                    this.state.hotbar_selection = 1;
-                    break;
-                case "3":
-                    this.state.hotbar_selection = 2;
-                    break;
-                case "4":
-                    this.state.hotbar_selection = 3;
-                    break;
-                case "5":
-                    this.state.hotbar_selection = 4;
-                    break;
-                case "6":
-                    this.state.hotbar_selection = 5;
-                    break;
-                case "7":
-                    this.state.hotbar_selection = 6;
-                    break;
-                case "8":
-                    this.state.hotbar_selection = 7;
-                    break;
-                case "9":
-                    this.state.hotbar_selection = 8;
-                    break;
-                case "0":
-                    this.state.hotbar_selection = 9;
-                    break;
-            }
-        });
-
-        document.addEventListener("mousemove", (moveEvent) => {
-            this.state.mouse_x = moveEvent.clientX;
-            this.state.mouse_y = moveEvent.clientY;
-        });
-
-        this.run();
+        if (state.viewMode == ViewMode.Fleet) {
+            state.viewMode = ViewMode.Interplanetary;
+        } else {
+            state.viewMode = ViewMode.Fleet;
+        }
     }
 
-    update_physics() {
-        const player = this.state.player;
-
-        if (player.brake_on && player.velocity > 0) {
-            player.velocity--;
-        } else if (player.thruster_on && player.velocity < game_consts.max_velocity) {
-            player.velocity++;
-        }
-        if (player.turning_right && !player.turning_left) {
-            player.direction -= 0.05;
-        } else if (player.turning_left && !player.turning_right) {
-            player.direction += 0.05;
-        }
-
-        player.x += Math.cos(player.direction) * player.velocity * 0.3;
-        player.y += Math.sin(-player.direction) * player.velocity * 0.3;
+    if (controls.hotbar.next && state.hotbarSelection < 9) {
+        controls.hotbar.next = false;
+        state.hotbarSelection++;
+    } else if (controls.hotbar.prev && state.hotbarSelection > 0) {
+        controls.hotbar.prev = false;
+        state.hotbarSelection--;
+    } else if (controls.hotbar.selectedChange) {
+        controls.hotbar.selectedChange = false;
+        state.hotbarSelection = controls.hotbar.selection;
     }
 
-    update() {
-        this.update_physics();
-    }
+    state.pointerCoords.x = controls.mouse.x;
+    state.pointerCoords.y = controls.mouse.y;
+}
 
-    async run() {
-        const renderer = SpaceViewRenderer(app.renderer, app.stage, this.state);
+async function gameLoop(state: GameState, controls: GameControls, renderer: GameRenderer) {
+    while (true) {
+        const next = new Promise((resolve) => setTimeout(resolve, 6));
 
-        let startTime = performance.now();
+        handleControls(controls, state);
+        state.planets[0].orbitProperties.position += 0.001;
+        renderer.update();
 
-        while (true) {
-            const next = new Promise((resolve) => setTimeout(resolve, 6));
-            this.update();
-            renderer.render(this.state);
-            const endTime = performance.now();
-            console.log("Frametime: ", endTime - startTime);
-            startTime = endTime;
+        //const endTime = performance.now();
+        //console.log("Frametime: ", endTime - startTime);
+        //startTime = endTime;
 
-            await next;
-        }
+        await next;
     }
 }
+
+function startGame() {
+    const state = initGameState();
+    const controls = initGameControls();
+    const renderer = createGameRenderer(app, state);
+
+    gameLoop(state, controls, renderer);
+}
+
+//class SpaceView {
+//    state: GameState;
+//    controls: GameControls;
+//
+//    constructor() {
+//        const switchViewMode = () => {
+//            if (this.state.viewMode == ViewMode.Fleet) {
+//                this.state.viewMode = ViewMode.Interplanetary;
+//            } else if (this.state.viewMode == ViewMode.Interplanetary) {
+//                this.state.viewMode = ViewMode.Fleet;
+//            }
+//        };
+//
+//        this.run();
+//    }
+//
+//    async run() {
+//        const renderer = createRenderer(app.stage);
+//        const spaceView = SpaceViewRenderComponent(app.renderer, this.state);
+//
+//        const planet1: PlanetEntity = {
+//            orbitProperties: {
+//                radius_x: 100,
+//                radius_y: 100,
+//                position: 0,
+//            },
+//            type: PlanetType.Oasis,
+//            size: 100,
+//        };
+//
+//        spaceView.addPlanet(planet1);
+//
+//        renderer.addChild(spaceView.renderObj);
+//
+//        //let startTime = performance.now();
+//
+//        while (true) {
+//            const next = new Promise((resolve) => setTimeout(resolve, 6));
+//            this.update();
+//            renderer.render();
+//            //const endTime = performance.now();
+//            //console.log("Frametime: ", endTime - startTime);
+//            //startTime = endTime;
+//
+//            await next;
+//        }
+//    }
+//}

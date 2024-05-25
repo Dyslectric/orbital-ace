@@ -9,9 +9,7 @@ export function get_game_height() {
 }
 
 export function get_game_scale() {
-    return window.innerWidth > game_consts.max_pixel_width
-        ? Math.ceil(window.innerWidth / game_consts.max_pixel_width)
-        : 1;
+    return 1;
 }
 
 export function parallax(

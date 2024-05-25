@@ -2,6 +2,7 @@ import { Container, Filter, Graphics, GraphicsPath, Renderer, Sprite } from "pix
 import { get_game_height } from "../../util";
 import { ColorGradientFilter } from "pixi-filters";
 import { colors } from "./colors";
+import { RenderObj } from "../..";
 
 export const Compass = (
     renderer: Renderer,
@@ -10,11 +11,10 @@ export const Compass = (
     padding_left: number,
     padding_bottom: number,
 ): {
-    render: Container;
+    renderObj: RenderObj;
     blurMask: Container;
     shadowMask: Sprite;
     shadowMaskFilter: Filter;
-    update: () => void;
 } => {
     const height = get_game_height();
     const x = padding_left;
@@ -113,10 +113,26 @@ export const Compass = (
         ],
     });
 
+    const compassGlareX = 24;
+    const compassGlareY = -24;
+
     const compassGlassGlare = new Graphics({ x, y })
-        .circle(radius_shadow + 18, radius_shadow - 18, radius_compass * 0.3)
+        .circle(radius_shadow + compassGlareX, radius_shadow + compassGlareY, radius_compass * 0.3)
         .fill({ color: "#fff" });
     compassGlassGlare.filters = compassGlassGlareGradient;
+
+    const line_length = radius_compass - 4;
+
+    const compassLines = new Graphics({ x, y })
+        .moveTo(radius_shadow, radius_shadow)
+        .lineTo(radius_shadow - line_length, radius_shadow)
+        .moveTo(radius_shadow, radius_shadow)
+        .lineTo(radius_shadow, radius_shadow - line_length)
+        .moveTo(radius_shadow, radius_shadow)
+        .lineTo(radius_shadow + line_length, radius_shadow)
+        .moveTo(radius_shadow, radius_shadow)
+        .lineTo(radius_shadow, radius_shadow + line_length)
+        .stroke({ color: "#fff4" });
 
     const blurMask = new Graphics({ x, y }).path(compassArea).fill({ color: "#fff" });
 
@@ -131,17 +147,22 @@ export const Compass = (
         compassGlass.y = y;
         blurMask.y = y;
         compassGlassGlare.y = y;
+        compassLines.y = y;
     };
-
     const render = new Container({
-        children: [compassGlass, compassGlassGlare],
+        children: [compassLines, compassGlass, compassGlassGlare],
     });
-
+    const destroy = () => {
+        render.destroy({ children: true });
+    };
     return {
-        render,
+        renderObj: {
+            container: render,
+            update,
+            destroy,
+        },
         blurMask,
         shadowMask,
         shadowMaskFilter,
-        update,
     };
 };

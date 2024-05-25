@@ -1,14 +1,7 @@
 import { Container, Filter, Rectangle, Renderer, Sprite } from "pixi.js";
+import { RenderObj } from "..";
 
-export const MaskFilter = (
-    renderer: Renderer,
-    mask: Sprite,
-    filters: Filter[],
-    background: Container,
-): {
-    container: Container;
-    update: () => void;
-} => {
+export const MaskFilter = (renderer: Renderer, mask: Sprite, filters: Filter[], background: Container): RenderObj => {
     const sprite = new Sprite({
         texture: renderer.generateTexture({
             target: background,
@@ -29,8 +22,13 @@ export const MaskFilter = (
         sprite.y = mask.y;
     };
 
+    const destroy = () => {
+        sprite.destroy({ children: true });
+    };
+
     return {
         container: sprite,
         update,
+        destroy,
     };
 };
